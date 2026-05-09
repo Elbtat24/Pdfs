@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Mohamed Albtat">
-    <title>اجابات الولية - المولد الذكي</title>
+    <title>اجابات الولية - المولد الذكي A4</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -45,42 +45,41 @@
 
         /* Wrapper */
         .print-wrap { 
+            /* بنخلي العرض متناسب مع حجم الورقة */
+            width: fit-content; 
             margin: 30px auto; 
             transition: opacity 0.35s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* عشان الورق يتسنتر في نص الشاشة */
         }
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* Sheet styling - A4 Exact Dimensions */
+        /* Sheet styling - A4 Dimensions */
         .sheet { 
-            width: 210mm; /* عرض الـ A4 */
-            height: 297mm; /* طول الـ A4 */
-            page-break-after: always; 
-            padding: 15mm; /* هوامش داخلية للورقة */
+            /* مقاسات ورقة A4 بالظبط */
+            width: 210mm; 
+            height: 296mm; /* أقل ملي واحد من 297 عشان ميطبعش صفحة فاضية */
+            padding: 15mm; /* الهوامش الداخلية للورقة */
             display: flex; flex-direction: column; 
-            gap: 25px; justify-content: center; align-items: center; 
+            gap: 20px; justify-content: center; align-items: center; 
             box-sizing: border-box; margin-bottom: 25px;
-            background: #fff; 
-            /* قللت الدوران بتاع الورقة عشان تبان A4 طبيعية أكتر */
-            border-radius: 5px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: #fff; border-radius: 5px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             transition: all 0.4s ease;
-            overflow: hidden; /* عشان لو حاجة كبرت متخرجش برا الورقة */
+            page-break-after: always;
+            overflow: hidden; /* عشان لو في بروز ميبوظش المقاس */
         }
-        .sheet:last-child { page-break-after: auto; margin-bottom: 0; }
+        .sheet:last-child { page-break-after: auto; }
 
         .pic-wrap { 
-            padding: 10px; background: #fff; 
+            padding: 8px; border-radius: 8px; background: #fff; 
             width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
             box-sizing: border-box;
         }
         .pic-wrap img { 
             max-width: 100%; 
-            max-height: 240px; /* متظبطة عشان الـ 3 صور يكفوا مرتاحين جوه الـ 297mm */
+            /* تصغير الطول شوية عشان الـ 3 صور يكفوا مرتاحين جوه الـ A4 */
+            max-height: 245px; 
             object-fit: contain;
-            display: block; margin: auto; border-radius: 5px;
+            display: block; margin: auto; border-radius: 6px;
         }
     </style>
 </head>
@@ -118,11 +117,10 @@
                 area.appendChild(pg);
             }
 
-            mixItUp();
-            console.log("App Initialized by Albtat 🚀 - A4 Mode");
+            mixItUp(); 
+            console.log("A4 Edition Initialized 🚀");
         });
 
-        // Animation before shuffle
         const triggerMix = () => {
             const wrap = document.getElementById('paperArea');
             wrap.classList.add('ghost');
@@ -132,7 +130,6 @@
             }, 350);
         }
 
-        // Core logic
         const mixItUp = () => {
             document.querySelectorAll('.sheet').forEach(s => {
                 let items = Array.from(s.querySelectorAll('.pic-wrap'));
@@ -141,14 +138,14 @@
 
                 let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
                 let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
-                let rndWidth = Math.floor(Math.random() * 4) + 2; 
+                let rndWidth = Math.floor(Math.random() * 3) + 2; 
                 s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
                 s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
 
                 items.forEach(pic => {
                     let img = pic.querySelector('img');
-                    pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
+                    pic.style.border = `2px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
+                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.2}deg)`;
 
                     let sp = Math.random() * 0.15; 
                     let cn = 0.9 + Math.random() * 0.2; 
@@ -159,15 +156,15 @@
             });
         }
 
-        // Export
+        // Export with precise A4 settings
         const getPDF = () => {
-            // شلنا الـ margin من هنا عشان إحنا ظابطين الـ Padding جوه الـ A4 في الـ CSS
             html2pdf().set({
-                margin: 0, 
+                margin: 0, // الهوامش خليناها صفر عشان الـ CSS هو اللي بيتحكم فيها
                 filename: 'El_Mlokhia_A4.pdf',
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: ['css', 'legacy'] } // بيفهم المكتبة تقطع الورق بناءً على تصميم الـ CSS
             }).from(document.getElementById('paperArea')).save();
         }
     </script>
