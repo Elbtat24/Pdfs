@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Mohamed Albtat">
     <title>اجابات الولية - المولد الذكي</title>
-    <!-- تم إضافة مجموعة خطوط عربية متنوعة من جوجل -->
+    
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;700&family=Changa:wght@700&family=El+Messiri:wght@700&family=Lalezar&family=Lemonada:wght@600&family=Reem+Kufi:wght@700&family=Tajawal:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         :root {
             --main: #6c5ce7;
@@ -22,7 +23,6 @@
             margin: 0; color: #2d3436;
         }
 
-        /* شريط الأدوات */
         .actions-bar { 
             position: sticky; top: 0; z-index: 999;
             background: rgba(255, 255, 255, 0.7);
@@ -44,87 +44,53 @@
         .btn-dl { background: linear-gradient(135deg, var(--sec), #55efc4); }
         .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4); }
 
-        /* حاوية الأوراق */
         .print-wrap { 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 30px auto; 
-            transition: opacity 0.35s ease;
+            display: flex; flex-direction: column; align-items: center;
+            margin: 30px auto; transition: opacity 0.35s ease;
         }
+        
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* تصميم الورقة - مقاس A4 رسمي */
         .sheet { 
-            /* خلينا الـ position: relative عشان نقدر نتحكم في مكان الاسم جواها براحتنا */
             position: relative; 
-            width: 210mm; 
-            height: 296mm; 
-            padding: 5mm; 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            display: flex; flex-direction: column; 
-            gap: 15px; 
+            width: 210mm; height: 296mm; padding: 5mm; 
+            page-break-inside: avoid !important; break-inside: avoid !important;
+            display: flex; flex-direction: column; gap: 15px; 
             justify-content: space-evenly; align-items: center; 
             box-sizing: border-box; margin-bottom: 20px;
-            background: #fff; 
-            transition: all 0.4s ease;
-            overflow: hidden; 
-            border: none; 
+            background: #fff; transition: all 0.4s ease; overflow: hidden; border: none; 
         }
+        
         .sheet:last-child { page-break-after: auto; }
 
-        /* تنسيق اسم الطالب */
         .student-name {
-            position: absolute;
-            top: 15mm; /* مسافة من فوق */
-            right: 15mm; /* مسافة من اليمين */
-            font-size: 24px;
-            color: #1a252f;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.85); /* خلفية خفيفة عشان لو جه فوق صورة يفضل مقروء */
-            padding: 5px 15px;
-            border-radius: 8px;
-            border: 2px dashed rgba(0, 0, 0, 0.1);
-            transform: rotate(-2deg); /* ميلان خفيف يديله شكل واقعي */
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: absolute; top: 15mm; right: 15mm;
+            font-size: 24px; color: #1a252f; z-index: 100;
+            background: rgba(255, 255, 255, 0.85); padding: 5px 15px;
+            border-radius: 8px; border: 2px dashed rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg); box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
 
-        /* حاوية الصورة */
         .pic-wrap { 
-            padding: 5px; 
-            border-radius: 12px; background: #fff; 
-            width: 96%; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-            flex: 1; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 0; 
-            box-sizing: border-box;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            padding: 5px; border-radius: 12px; background: #fff; 
+            width: 96%; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            min-height: 0; box-sizing: border-box;
+            page-break-inside: avoid !important; break-inside: avoid !important;
         }
 
-        /* الصورة نفسها */
         .pic-wrap img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain;
-            display: block; margin: auto; border-radius: 8px;
+            max-width: 100%; max-height: 100%; 
+            object-fit: contain; display: block; margin: auto; border-radius: 8px;
         }
 
         @media print {
             .actions-bar { display: none !important; }
             body { background: #fff; }
             .sheet { 
-                margin: 0 !important; 
-                padding: 5mm !important;
-                border-radius: 0; 
-                box-shadow: none; 
-                border: none !important; 
-                height: 296mm !important;
-                page-break-after: auto !important;
+                margin: 0 !important; padding: 5mm !important;
+                border-radius: 0; box-shadow: none; border: none !important; 
+                height: 296mm !important; page-break-after: auto !important;
             }
         }
     </style>
@@ -139,42 +105,36 @@
     <div id="paperArea" class="print-wrap"></div>
 
     <script>
-        const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
+        const borderColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
+        const fontsArr = ['Cairo', 'Tajawal', 'Amiri', 'Changa', 'Reem Kufi', 'Lalezar', 'El Messiri', 'Lemonada'];
         
-        // قائمة الخطوط العربية العشوائية
-        const arabicFonts = ['Cairo', 'Tajawal', 'Amiri', 'Changa', 'Reem Kufi', 'Lalezar', 'El Messiri', 'Lemonada'];
-        
-        let globalUserName = "";
-        let globalUserFont = "";
+        let uName = "";
+        let uFont = "";
 
-        // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', () => {
-            // طلب الاسم أول ما الموقع يفتح
-            let inputName = prompt("يا مرحباً! اكتب اسمك عشان نطبعولك على أول ورقة:");
-            if (inputName && inputName.trim() !== "") {
-                globalUserName = inputName.trim();
-                // اختيار خط عشوائي للاسم
-                globalUserFont = arabicFonts[Math.floor(Math.random() * arabicFonts.length)];
+            let prmpt = prompt("يا مرحباً! اكتب اسمك عشان نطبعولك على أول ورقة:");
+            if (prmpt && prmpt.trim() !== "") {
+                uName = prmpt.trim();
+                uFont = fontsArr[Math.floor(Math.random() * fontsArr.length)];
             }
 
-            const area = document.getElementById('paperArea');
+            const wrapper = document.getElementById('paperArea');
             
             for (let i = 1; i <= 16; i++) {
-                let pg = document.createElement('div');
-                pg.className = 'sheet';
+                let page = document.createElement('div');
+                page.className = 'sheet';
                 
-                // استثناء الورق اللي فيه صورتين بس
-                let picsNum = [5, 6, 11, 16].includes(i) ? 2 : 3;
+                let count = [5, 6, 11, 16].includes(i) ? 2 : 3;
+                let htmlBlock = '';
                 
-                let imgsHtml = '';
-                for (let j = 1; j <= picsNum; j++) {
-                    imgsHtml += `
+                for (let j = 1; j <= count; j++) {
+                    htmlBlock += `
                         <div class="pic-wrap">
                             <img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'">
                         </div>`;
                 }
-                pg.innerHTML = imgsHtml;
-                area.appendChild(pg);
+                page.innerHTML = htmlBlock;
+                wrapper.appendChild(page);
             }
 
             mixItUp();
@@ -182,109 +142,87 @@
         });
 
         const triggerMix = () => {
-            const wrap = document.getElementById('paperArea');
-            wrap.classList.add('ghost');
+            const container = document.getElementById('paperArea');
+            container.classList.add('ghost');
             setTimeout(() => {
                 mixItUp();
-                wrap.classList.remove('ghost');
+                container.classList.remove('ghost');
             }, 350);
         }
 
         const mixItUp = () => {
-            const sheets = Array.from(document.querySelectorAll('.sheet'));
+            const domSheets = Array.from(document.querySelectorAll('.sheet'));
+            let groups = domSheets.map(s => Array.from(s.querySelectorAll('.pic-wrap')));
             
-            // 1. استخراج كل المجموعات
-            let allGroups = sheets.map(s => Array.from(s.querySelectorAll('.pic-wrap')));
-            
-            // 2. خلط المجموعات نفسها
-            allGroups.sort(() => Math.random() - 0.5);
+            // shuffle pages
+            groups.sort(() => Math.random() - 0.5);
 
-            // 3. إعادة توزيع المجموعات على الورق
-            sheets.forEach((s, index) => {
-                s.innerHTML = ''; 
+            domSheets.forEach((page, idx) => {
+                page.innerHTML = ''; 
                 
-                // إضافة اسم الطالب في الورقة الأولى فقط
-                if (index === 0 && globalUserName !== "") {
-                    let nameDiv = document.createElement('div');
-                    nameDiv.className = 'student-name';
-                    // تطبيق الخط العشوائي اللي اخترناه ليه في البداية
-                    nameDiv.style.fontFamily = `'${globalUserFont}', sans-serif`;
-                    nameDiv.innerText = `الاسم: ${globalUserName}`;
-                    s.appendChild(nameDiv);
+                if (idx === 0 && uName !== "") {
+                    let badge = document.createElement('div');
+                    badge.className = 'student-name';
+                    badge.style.fontFamily = `'${uFont}', sans-serif`;
+                    badge.innerText = `الاسم: ${uName}`;
+                    page.appendChild(badge);
                 }
 
-                let currentGroup = allGroups[index];
+                let grp = groups[idx];
                 
-                // خلط ترتيب الصور جوه المجموعة
-                currentGroup.sort(() => Math.random() - 0.5);
-                
-                // إضافة الصور للورقة
-                currentGroup.forEach(el => s.appendChild(el));
+                // shuffle inner imgs
+                grp.sort(() => Math.random() - 0.5);
+                grp.forEach(el => page.appendChild(el));
 
-                // تغيير خلفية الورقة
-                s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
-                s.style.border = 'none';
+                page.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
+                page.style.border = 'none';
 
-                // تنسيق الصور وتدويرها
-                currentGroup.forEach(pic => {
-                    let img = pic.querySelector('img');
-                    pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
+                grp.forEach(item => {
+                    let imgTag = item.querySelector('img');
+                    item.style.border = `3px solid ${borderColors[Math.floor(Math.random() * borderColors.length)]}`;
+                    item.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
 
-                    let sp = Math.random() * 0.15; 
-                    let cn = 0.9 + Math.random() * 0.2; 
-                    let br = 0.95 + Math.random() * 0.1; 
-                    let hr = Math.floor(Math.random() * 15) - 7; 
-                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
+                    let s = Math.random() * 0.15; 
+                    let c = 0.9 + Math.random() * 0.2; 
+                    let b = 0.95 + Math.random() * 0.1; 
+                    let h = Math.floor(Math.random() * 15) - 7; 
+                    imgTag.style.filter = `sepia(${s}) contrast(${c}) brightness(${b}) hue-rotate(${h}deg)`;
                 });
             });
         }
 
-        // حفظ ملف الـ PDF
         const getPDF = () => {
-            const actionBar = document.querySelector('.actions-bar');
-            const paperArea = document.getElementById('paperArea');
-            const sheets = document.querySelectorAll('.sheet');
+            const nav = document.querySelector('.actions-bar');
+            const mainArea = document.getElementById('paperArea');
+            const pgs = document.querySelectorAll('.sheet');
 
-            // 1. إخفاء الأزرار
-            actionBar.style.display = 'none'; 
-
-            // 2. إزالة المسافات مؤقتاً لتجنب الصفحات البيضاء
-            paperArea.style.margin = '0';
-            sheets.forEach((sheet, index) => {
-                sheet.style.marginBottom = '0';
-                sheet.style.pageBreakAfter = index === sheets.length - 1 ? 'auto' : 'always';
+            nav.style.display = 'none'; 
+            mainArea.style.margin = '0';
+            
+            pgs.forEach((p, i) => {
+                p.style.marginBottom = '0';
+                p.style.pageBreakAfter = i === pgs.length - 1 ? 'auto' : 'always';
             });
 
-            const opt = {
+            const config = {
                 margin: 0, 
-                filename: `El_Mlokhia_${globalUserName !== "" ? globalUserName : "V2"}.pdf`, // حطيت اسمه في ملف الـ PDF كمان
+                filename: `El_Mlokhia_${uName || "V2"}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true, 
-                    letterRendering: true,
-                    scrollY: 0
-                },
+                html2canvas: { scale: 2, useCORS: true, letterRendering: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: ['css'] } 
             };
 
-            html2pdf().set(opt).from(paperArea).save().then(() => {
-                // 3. إرجاع المسافات والأزرار بعد التحميل
-                actionBar.style.display = 'flex';
-                paperArea.style.margin = '30px auto';
-                sheets.forEach(sheet => {
-                    sheet.style.marginBottom = '20px';
-                });
+            html2pdf().set(config).from(mainArea).save().then(() => {
+                // reset view
+                nav.style.display = 'flex';
+                mainArea.style.margin = '30px auto';
+                pgs.forEach(p => p.style.marginBottom = '20px');
             }).catch(err => {
-                console.error("PDF Error: ", err);
-                actionBar.style.display = 'flex';
-                // تأمين رجوع التصميم
-                paperArea.style.margin = '30px auto';
-                sheets.forEach(sheet => {
-                    sheet.style.marginBottom = '20px';
-                });
+                console.error("Export Failed: ", err);
+                nav.style.display = 'flex';
+                mainArea.style.margin = '30px auto';
+                pgs.forEach(p => p.style.marginBottom = '20px');
             });
         }
     </script>
