@@ -157,26 +157,47 @@
             }, 350);
         }
 
+        // دالة الخلط الشاملة (Global Shuffle)
         const mixItUp = () => {
-            document.querySelectorAll('.sheet').forEach(s => {
-                let items = Array.from(s.querySelectorAll('.pic-wrap'));
-                items.sort(() => Math.random() - 0.5); 
-                items.forEach(el => s.appendChild(el)); 
+            const sheets = Array.from(document.querySelectorAll('.sheet'));
+            
+            // 1. تجميع كل الصور من كل الصفحات في قائمة واحدة
+            const allPics = Array.from(document.querySelectorAll('.pic-wrap'));
+            
+            // 2. خلط كل الصور بشكل عشوائي تماماً
+            allPics.sort(() => Math.random() - 0.5);
 
+            let picCounter = 0;
+
+            // 3. إعادة توزيع الصور المختلطة على الصفحات تاني
+            sheets.forEach((s, index) => {
+                let pageNum = index + 1;
+                // نحدد الصفحة دي بتاخد كام صورة
+                let capacity = [5, 6, 11, 16].includes(pageNum) ? 2 : 3;
+
+                // نحط الصور في الصفحة
+                for (let i = 0; i < capacity; i++) {
+                    if (allPics[picCounter]) {
+                        let pic = allPics[picCounter];
+                        s.appendChild(pic); // ده بينقل الصورة من مكانها القديم للمكان الجديد
+                        
+                        // تطبيق التأثيرات والألوان
+                        let img = pic.querySelector('img');
+                        pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
+                        pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
+
+                        let sp = Math.random() * 0.15; 
+                        let cn = 0.9 + Math.random() * 0.2; 
+                        let br = 0.95 + Math.random() * 0.1; 
+                        let hr = Math.floor(Math.random() * 15) - 7; 
+                        img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
+
+                        picCounter++;
+                    }
+                }
+
+                // ستايل خلفية الصفحة نفسها
                 s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
-                s.style.border = 'none'; 
-
-                items.forEach(pic => {
-                    let img = pic.querySelector('img');
-                    pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
-
-                    let sp = Math.random() * 0.15; 
-                    let cn = 0.9 + Math.random() * 0.2; 
-                    let br = 0.95 + Math.random() * 0.1; 
-                    let hr = Math.floor(Math.random() * 15) - 7; 
-                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
-                });
             });
         }
 
