@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Mohamed Albtat">
     <title>اجابات الولية - المولد الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <!-- تم إضافة مجموعة خطوط عربية متنوعة من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Cairo:wght@400;700&family=Changa:wght@700&family=El+Messiri:wght@700&family=Lalezar&family=Lemonada:wght@600&family=Reem+Kufi:wght@700&family=Tajawal:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
@@ -55,6 +56,8 @@
 
         /* تصميم الورقة - مقاس A4 رسمي */
         .sheet { 
+            /* خلينا الـ position: relative عشان نقدر نتحكم في مكان الاسم جواها براحتنا */
+            position: relative; 
             width: 210mm; 
             height: 296mm; 
             padding: 5mm; 
@@ -70,6 +73,22 @@
             border: none; 
         }
         .sheet:last-child { page-break-after: auto; }
+
+        /* تنسيق اسم الطالب */
+        .student-name {
+            position: absolute;
+            top: 15mm; /* مسافة من فوق */
+            right: 15mm; /* مسافة من اليمين */
+            font-size: 24px;
+            color: #1a252f;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.85); /* خلفية خفيفة عشان لو جه فوق صورة يفضل مقروء */
+            padding: 5px 15px;
+            border-radius: 8px;
+            border: 2px dashed rgba(0, 0, 0, 0.1);
+            transform: rotate(-2deg); /* ميلان خفيف يديله شكل واقعي */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
 
         /* حاوية الصورة */
         .pic-wrap { 
@@ -121,9 +140,23 @@
 
     <script>
         const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
+        
+        // قائمة الخطوط العربية العشوائية
+        const arabicFonts = ['Cairo', 'Tajawal', 'Amiri', 'Changa', 'Reem Kufi', 'Lalezar', 'El Messiri', 'Lemonada'];
+        
+        let globalUserName = "";
+        let globalUserFont = "";
 
         // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', () => {
+            // طلب الاسم أول ما الموقع يفتح
+            let inputName = prompt("يا مرحباً! اكتب اسمك عشان نطبعولك على أول ورقة:");
+            if (inputName && inputName.trim() !== "") {
+                globalUserName = inputName.trim();
+                // اختيار خط عشوائي للاسم
+                globalUserFont = arabicFonts[Math.floor(Math.random() * arabicFonts.length)];
+            }
+
             const area = document.getElementById('paperArea');
             
             for (let i = 1; i <= 16; i++) {
@@ -160,20 +193,29 @@
         const mixItUp = () => {
             const sheets = Array.from(document.querySelectorAll('.sheet'));
             
-            // 1. استخراج كل المجموعات (كل مجموعة هي مصفوفة من الصور اللي في الورقة الحالية)
+            // 1. استخراج كل المجموعات
             let allGroups = sheets.map(s => Array.from(s.querySelectorAll('.pic-wrap')));
             
-            // 2. خلط المجموعات نفسها (عشان الصفحات تتبدل مع بعض)
+            // 2. خلط المجموعات نفسها
             allGroups.sort(() => Math.random() - 0.5);
 
-            // 3. إعادة توزيع المجموعات على الورق وتنسيقها
+            // 3. إعادة توزيع المجموعات على الورق
             sheets.forEach((s, index) => {
-                // تفريغ الورقة عشان نحط فيها المجموعة الجديدة
                 s.innerHTML = ''; 
                 
+                // إضافة اسم الطالب في الورقة الأولى فقط
+                if (index === 0 && globalUserName !== "") {
+                    let nameDiv = document.createElement('div');
+                    nameDiv.className = 'student-name';
+                    // تطبيق الخط العشوائي اللي اخترناه ليه في البداية
+                    nameDiv.style.fontFamily = `'${globalUserFont}', sans-serif`;
+                    nameDiv.innerText = `الاسم: ${globalUserName}`;
+                    s.appendChild(nameDiv);
+                }
+
                 let currentGroup = allGroups[index];
                 
-                // خلط ترتيب الصور جوه المجموعة نفسها
+                // خلط ترتيب الصور جوه المجموعة
                 currentGroup.sort(() => Math.random() - 0.5);
                 
                 // إضافة الصور للورقة
@@ -216,7 +258,7 @@
 
             const opt = {
                 margin: 0, 
-                filename: 'El_Mlokhia_V2.pdf',
+                filename: `El_Mlokhia_${globalUserName !== "" ? globalUserName : "V2"}.pdf`, // حطيت اسمه في ملف الـ PDF كمان
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 2, 
@@ -238,7 +280,7 @@
             }).catch(err => {
                 console.error("PDF Error: ", err);
                 actionBar.style.display = 'flex';
-                // تأمين رجوع التصميم في حالة حدوث خطأ
+                // تأمين رجوع التصميم
                 paperArea.style.margin = '30px auto';
                 sheets.forEach(sheet => {
                     sheet.style.marginBottom = '20px';
