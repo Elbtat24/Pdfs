@@ -157,47 +157,44 @@
             }, 350);
         }
 
-        // دالة الخلط الشاملة (Global Shuffle)
         const mixItUp = () => {
             const sheets = Array.from(document.querySelectorAll('.sheet'));
             
-            // 1. تجميع كل الصور من كل الصفحات في قائمة واحدة
-            const allPics = Array.from(document.querySelectorAll('.pic-wrap'));
+            // 1. استخراج كل المجموعات (كل مجموعة هي مصفوفة من الصور اللي في الورقة الحالية)
+            let allGroups = sheets.map(s => Array.from(s.querySelectorAll('.pic-wrap')));
             
-            // 2. خلط كل الصور بشكل عشوائي تماماً
-            allPics.sort(() => Math.random() - 0.5);
+            // 2. خلط المجموعات نفسها (عشان الصفحات تتبدل مع بعض)
+            allGroups.sort(() => Math.random() - 0.5);
 
-            let picCounter = 0;
-
-            // 3. إعادة توزيع الصور المختلطة على الصفحات تاني
+            // 3. إعادة توزيع المجموعات على الورق وتنسيقها
             sheets.forEach((s, index) => {
-                let pageNum = index + 1;
-                // نحدد الصفحة دي بتاخد كام صورة
-                let capacity = [5, 6, 11, 16].includes(pageNum) ? 2 : 3;
+                // تفريغ الورقة عشان نحط فيها المجموعة الجديدة
+                s.innerHTML = ''; 
+                
+                let currentGroup = allGroups[index];
+                
+                // خلط ترتيب الصور جوه المجموعة نفسها
+                currentGroup.sort(() => Math.random() - 0.5);
+                
+                // إضافة الصور للورقة
+                currentGroup.forEach(el => s.appendChild(el));
 
-                // نحط الصور في الصفحة
-                for (let i = 0; i < capacity; i++) {
-                    if (allPics[picCounter]) {
-                        let pic = allPics[picCounter];
-                        s.appendChild(pic); // ده بينقل الصورة من مكانها القديم للمكان الجديد
-                        
-                        // تطبيق التأثيرات والألوان
-                        let img = pic.querySelector('img');
-                        pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                        pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
-
-                        let sp = Math.random() * 0.15; 
-                        let cn = 0.9 + Math.random() * 0.2; 
-                        let br = 0.95 + Math.random() * 0.1; 
-                        let hr = Math.floor(Math.random() * 15) - 7; 
-                        img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
-
-                        picCounter++;
-                    }
-                }
-
-                // ستايل خلفية الصفحة نفسها
+                // تغيير خلفية الورقة
                 s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
+                s.style.border = 'none';
+
+                // تنسيق الصور وتدويرها
+                currentGroup.forEach(pic => {
+                    let img = pic.querySelector('img');
+                    pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
+                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
+
+                    let sp = Math.random() * 0.15; 
+                    let cn = 0.9 + Math.random() * 0.2; 
+                    let br = 0.95 + Math.random() * 0.1; 
+                    let hr = Math.floor(Math.random() * 15) - 7; 
+                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
+                });
             });
         }
 
