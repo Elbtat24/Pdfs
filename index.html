@@ -56,17 +56,16 @@
         /* تصميم الورقة - مقاس A4 رسمي */
         .sheet { 
             width: 210mm; 
-            height: 296mm; 
-            /* التعديل هنا: صغرنا الفريم الداخلي للورقة لـ 5 مللي بدل 15 */
+            height: 295mm; /* تم التعديل لـ 295 لتجنب الصفحات البيضاء */
             padding: 5mm; 
             page-break-after: always; 
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             display: flex; flex-direction: column; 
-            /* التعديل هنا: قللنا المسافة بين الصور لـ 15 بيكسل */
             gap: 15px; 
             justify-content: space-evenly; align-items: center; 
-            box-sizing: border-box; margin-bottom: 25px;
+            box-sizing: border-box; /* مهم جداً لضبط الحواف */
+            margin-bottom: 25px;
             background: #fff; border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: all 0.4s ease;
@@ -76,10 +75,8 @@
 
         /* حاوية الصورة */
         .pic-wrap { 
-            /* التعديل هنا: صغرنا الفريم حوالين الصورة نفسها شوية */
             padding: 5px; 
             border-radius: 12px; background: #fff; 
-            /* التعديل هنا: كبرنا العرض عشان يملى الورقة أكتر والفريم يصغر */
             width: 96%; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
             flex: 1; 
@@ -104,7 +101,7 @@
             .actions-bar { display: none !important; }
             body { background: #fff; }
             .sheet { 
-                margin: 0; border-radius: 0; box-shadow: none; border: none !important; 
+                margin: 0 !important; border-radius: 0; box-shadow: none; border: none !important; 
                 height: 297mm;
             }
         }
@@ -184,32 +181,44 @@
             });
         }
 
-        // حفظ ملف الـ PDF
+        // حفظ ملف الـ PDF بعد التعديلات الجديدة
         const getPDF = () => {
             const actionBar = document.querySelector('.actions-bar');
-            actionBar.style.display = 'none'; // إخفاء الأزرار لضمان جودة المسح
+            const sheets = document.querySelectorAll('.sheet');
+
+            // إخفاء الأزرار وإزالة المسافات بين الورق لضمان عدم وجود صفحات بيضاء
+            actionBar.style.display = 'none';
+            sheets.forEach(s => {
+                s.style.marginBottom = '0'; 
+                s.style.borderRadius = '0'; 
+            });
 
             const opt = {
                 margin: 0, 
                 filename: 'El_Mlokhia_V2.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
-                    scale: 1.5, 
+                    scale: 2, // رفعنا الجودة
                     useCORS: true, 
                     letterRendering: true 
                 },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { 
-                    mode: ['css', 'legacy'], 
-                    avoid: ['.sheet', '.pic-wrap', 'img']
-                }
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
+                // نرجع كل حاجة زي ما كانت بعد ما الـ PDF يتحمل
                 actionBar.style.display = 'flex';
+                sheets.forEach(s => {
+                    s.style.marginBottom = '25px';
+                    s.style.borderRadius = '15px';
+                });
             }).catch(err => {
                 console.error("PDF Error: ", err);
                 actionBar.style.display = 'flex';
+                sheets.forEach(s => {
+                    s.style.marginBottom = '25px';
+                    s.style.borderRadius = '15px';
+                });
             });
         }
     </script>
