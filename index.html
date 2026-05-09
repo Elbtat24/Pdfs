@@ -53,24 +53,32 @@
         }
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* تصميم الورقة */
+        /* تصميم الورقة - بيضاء وبدون فريم، مجرد حاوية بحجم A4 */
         .sheet { 
             width: 210mm; 
-            /* قللنا الطول ملي واحد لضمان عدم الترحيل */
-            height: 295mm; 
+            height: 296mm; 
+            /* مساحة الأمان اللي هتمنع الفريم الداخلي إنه يلمس الأطراف */
             padding: 5mm; 
             page-break-after: always; 
             page-break-inside: avoid !important;
-            display: flex; flex-direction: column; 
-            gap: 10px; 
-            justify-content: space-evenly; align-items: center; 
             box-sizing: border-box; 
             margin-bottom: 25px;
-            background: #fff; border-radius: 15px;
+            background: #fff; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden; 
+        }
+
+        /* الإطار الداخلي - هو ده اللي هياخد اللون والفريم */
+        .inner-frame {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border-radius: 15px;
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            justify-content: space-evenly; 
+            align-items: center; 
+            padding: 10px;
         }
 
         /* حاوية الصورة */
@@ -95,17 +103,13 @@
             display: block; margin: auto; border-radius: 8px;
         }
 
-        /* تعديلات الطباعة لإلغاء أي هوامش خارجية */
         @media print {
             .actions-bar { display: none !important; }
             body { background: #fff; margin: 0; padding: 0; }
             .sheet { 
                 margin: 0 !important; 
-                border-radius: 0; 
                 box-shadow: none; 
-                /* نلغي الفريم العشوائي وقت الطباعة الفعلية لو بيعمل مشاكل */
-                border: none !important; 
-                height: 297mm; /* نرجعها لمقاس الـ A4 الكامل في الطباعة */
+                height: 297mm; 
             }
         }
     </style>
@@ -128,12 +132,19 @@
             for (let i = 1; i <= 16; i++) {
                 let pg = document.createElement('div');
                 pg.className = 'sheet';
+                
+                // أنشأنا حاوية داخلية للفريم عشان نضمن إنه ميخرجش برا الورقة
+                let frame = document.createElement('div');
+                frame.className = 'inner-frame';
+
                 let picsNum = [5, 6, 11, 16].includes(i) ? 2 : 3;
                 let imgsHtml = '';
                 for (let j = 1; j <= picsNum; j++) {
                     imgsHtml += `<div class="pic-wrap"><img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'"></div>`;
                 }
-                pg.innerHTML = imgsHtml;
+                
+                frame.innerHTML = imgsHtml;
+                pg.appendChild(frame);
                 area.appendChild(pg);
             }
             mixItUp();
@@ -146,15 +157,21 @@
         }
 
         const mixItUp = () => {
+            // التعديل هنا: بنلعب في ستايل الإطار الداخلي (.inner-frame) مش الورقة كلها
             document.querySelectorAll('.sheet').forEach(s => {
-                let items = Array.from(s.querySelectorAll('.pic-wrap'));
+                let frame = s.querySelector('.inner-frame');
+                let items = Array.from(frame.querySelectorAll('.pic-wrap'));
+                
                 items.sort(() => Math.random() - 0.5); 
-                items.forEach(el => s.appendChild(el)); 
+                items.forEach(el => frame.appendChild(el)); 
 
                 let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
                 let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
                 let rndWidth = Math.floor(Math.random() * 4) + 2; 
-                s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
+                
+                // تطبيق الفريم على الحاوية الداخلية
+                frame.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
+                frame.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
                 
                 items.forEach(pic => {
                     let img = pic.querySelector('img');
@@ -176,10 +193,10 @@
                     scale: 1.5, 
                     useCORS: true, 
                     letterRendering: true,
-                    scrollY: 0 // مهم جداً لمنع ترحيل العناصر بسبب السكرول
+                    scrollY: 0 
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['css', 'legacy'], avoid: ['.sheet', '.pic-wrap'] }
+                pagebreak: { mode: ['css', 'legacy'] }
             };
 
             html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
