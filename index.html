@@ -53,33 +53,26 @@
         }
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* تصميم الورقة - بيضاء وبدون فريم، مجرد حاوية بحجم A4 */
+        /* تصميم الورقة - تم تصغير المقاسات لضمان عدم قص الفريم */
         .sheet { 
-            width: 210mm; 
-            height: 296mm; 
-            /* مساحة الأمان اللي هتمنع الفريم الداخلي إنه يلمس الأطراف */
-            padding: 5mm; 
+            width: 200mm; /* تم التصغير من 210 */
+            height: 285mm; /* تم التصغير من 296 */
+            padding: 4mm; /* تصغير البادينج الداخلي قليلاً */
             page-break-after: always; 
             page-break-inside: avoid !important;
-            box-sizing: border-box; 
-            margin-bottom: 25px;
-            background: #fff; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-
-        /* الإطار الداخلي - هو ده اللي هياخد اللون والفريم */
-        .inner-frame {
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-            border-radius: 15px;
-            display: flex; 
-            flex-direction: column; 
+            break-inside: avoid !important;
+            display: flex; flex-direction: column; 
             gap: 15px; 
-            justify-content: space-evenly; 
-            align-items: center; 
-            padding: 10px;
+            justify-content: space-evenly; align-items: center; 
+            box-sizing: border-box; margin-bottom: 25px;
+            background: #fff; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            overflow: hidden; 
+            margin-left: auto; /* لضمان التوسيط */
+            margin-right: auto;
         }
+        .sheet:last-child { page-break-after: auto; }
 
         /* حاوية الصورة */
         .pic-wrap { 
@@ -94,8 +87,10 @@
             min-height: 0; 
             box-sizing: border-box;
             page-break-inside: avoid !important;
+            break-inside: avoid !important;
         }
 
+        /* الصورة نفسها */
         .pic-wrap img { 
             max-width: 100%; 
             max-height: 100%; 
@@ -105,11 +100,11 @@
 
         @media print {
             .actions-bar { display: none !important; }
-            body { background: #fff; margin: 0; padding: 0; }
+            body { background: #fff; }
             .sheet { 
-                margin: 0 !important; 
-                box-shadow: none; 
-                height: 297mm; 
+                margin: 0 auto; border-radius: 0; box-shadow: none; border: none !important; 
+                width: 210mm;
+                height: 297mm;
             }
         }
     </style>
@@ -127,79 +122,92 @@
         const bStyles = ['solid', 'dashed', 'dotted', 'double'];
         const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
 
+        // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', () => {
             const area = document.getElementById('paperArea');
+            
             for (let i = 1; i <= 16; i++) {
                 let pg = document.createElement('div');
                 pg.className = 'sheet';
                 
-                // أنشأنا حاوية داخلية للفريم عشان نضمن إنه ميخرجش برا الورقة
-                let frame = document.createElement('div');
-                frame.className = 'inner-frame';
-
+                // استثناء الورق اللي فيه صورتين بس
                 let picsNum = [5, 6, 11, 16].includes(i) ? 2 : 3;
+                
                 let imgsHtml = '';
                 for (let j = 1; j <= picsNum; j++) {
-                    imgsHtml += `<div class="pic-wrap"><img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'"></div>`;
+                    imgsHtml += `
+                        <div class="pic-wrap">
+                            <img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'">
+                        </div>`;
                 }
-                
-                frame.innerHTML = imgsHtml;
-                pg.appendChild(frame);
+                pg.innerHTML = imgsHtml;
                 area.appendChild(pg);
             }
+
             mixItUp();
+            console.log("App Initialized by Albtat 🚀");
         });
 
         const triggerMix = () => {
             const wrap = document.getElementById('paperArea');
             wrap.classList.add('ghost');
-            setTimeout(() => { mixItUp(); wrap.classList.remove('ghost'); }, 350);
+            setTimeout(() => {
+                mixItUp();
+                wrap.classList.remove('ghost');
+            }, 350);
         }
 
         const mixItUp = () => {
-            // التعديل هنا: بنلعب في ستايل الإطار الداخلي (.inner-frame) مش الورقة كلها
             document.querySelectorAll('.sheet').forEach(s => {
-                let frame = s.querySelector('.inner-frame');
-                let items = Array.from(frame.querySelectorAll('.pic-wrap'));
-                
+                let items = Array.from(s.querySelectorAll('.pic-wrap'));
                 items.sort(() => Math.random() - 0.5); 
-                items.forEach(el => frame.appendChild(el)); 
+                items.forEach(el => s.appendChild(el)); 
 
                 let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
                 let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
                 let rndWidth = Math.floor(Math.random() * 4) + 2; 
-                
-                // تطبيق الفريم على الحاوية الداخلية
-                frame.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
-                frame.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
-                
+                s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
+                s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
+
                 items.forEach(pic => {
                     let img = pic.querySelector('img');
                     pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1}deg)`;
+                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
+
+                    let sp = Math.random() * 0.15; 
+                    let cn = 0.9 + Math.random() * 0.2; 
+                    let br = 0.95 + Math.random() * 0.1; 
+                    let hr = Math.floor(Math.random() * 15) - 7; 
+                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
                 });
             });
         }
 
+        // حفظ ملف الـ PDF
         const getPDF = () => {
             const actionBar = document.querySelector('.actions-bar');
-            actionBar.style.display = 'none';
+            actionBar.style.display = 'none'; // إخفاء الأزرار لضمان جودة المسح
 
             const opt = {
-                margin: 0, 
+                margin: [5, 5, 5, 5], // التعديل هنا: إضافة هامش 5 ملليمتر من جميع الجهات لضمان عدم قص الفريم
                 filename: 'El_Mlokhia_V2.pdf',
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
-                    scale: 1.5, 
+                    scale: 2, // تم رفع الدقة قليلاً لنتائج أفضل
                     useCORS: true, 
-                    letterRendering: true,
-                    scrollY: 0 
+                    letterRendering: true 
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['css', 'legacy'] }
+                pagebreak: { 
+                    mode: ['css', 'legacy'], 
+                    avoid: ['.sheet', '.pic-wrap', 'img']
+                }
             };
 
             html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
+                actionBar.style.display = 'flex';
+            }).catch(err => {
+                console.error("PDF Error: ", err);
                 actionBar.style.display = 'flex';
             });
         }
