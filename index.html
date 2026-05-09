@@ -21,7 +21,7 @@
             margin: 0; color: #2d3436;
         }
 
-        /* Nav */
+        /* شريط الأدوات */
         .actions-bar { 
             position: sticky; top: 0; z-index: 999;
             background: rgba(255, 255, 255, 0.7);
@@ -43,7 +43,7 @@
         .btn-dl { background: linear-gradient(135deg, var(--sec), #55efc4); }
         .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4); }
 
-        /* Wrapper */
+        /* حاوية الأوراق */
         .print-wrap { 
             display: flex;
             flex-direction: column;
@@ -53,13 +53,14 @@
         }
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* Sheet styling - تطابق A4 */
+        /* تصميم الورقة - مقاس A4 رسمي */
         .sheet { 
             width: 210mm; 
             height: 296mm; 
             padding: 15mm; 
             page-break-after: always; 
-            page-break-inside: avoid;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
             display: flex; flex-direction: column; 
             gap: 20px; justify-content: space-evenly; align-items: center; 
             box-sizing: border-box; margin-bottom: 25px;
@@ -70,7 +71,7 @@
         }
         .sheet:last-child { page-break-after: auto; }
 
-        /* Container الصورة */
+        /* حاوية الصورة */
         .pic-wrap { 
             padding: 10px; border-radius: 12px; background: #fff; 
             width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
@@ -80,6 +81,8 @@
             align-items: center;
             min-height: 0; 
             box-sizing: border-box;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
         }
 
         /* الصورة نفسها */
@@ -90,7 +93,6 @@
             display: block; margin: auto; border-radius: 8px;
         }
 
-        /* تعديلات الطباعة */
         @media print {
             .actions-bar { display: none !important; }
             body { background: #fff; }
@@ -114,7 +116,7 @@
         const bStyles = ['solid', 'dashed', 'dotted', 'double'];
         const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
 
-        // Init App
+        // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', () => {
             const area = document.getElementById('paperArea');
             
@@ -136,11 +138,10 @@
                 area.appendChild(pg);
             }
 
-            mixItUp(); // اول رنة
+            mixItUp();
             console.log("App Initialized by Albtat 🚀");
         });
 
-        // Animation before shuffle
         const triggerMix = () => {
             const wrap = document.getElementById('paperArea');
             wrap.classList.add('ghost');
@@ -150,28 +151,23 @@
             }, 350);
         }
 
-        // Core logic
         const mixItUp = () => {
             document.querySelectorAll('.sheet').forEach(s => {
-                // لخبطة الصور
                 let items = Array.from(s.querySelectorAll('.pic-wrap'));
                 items.sort(() => Math.random() - 0.5); 
                 items.forEach(el => s.appendChild(el)); 
 
-                // ستايل عشوائي للورقة
                 let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
                 let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
                 let rndWidth = Math.floor(Math.random() * 4) + 2; 
                 s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
                 s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
 
-                // ستايل عشوائي لكل صورة
                 items.forEach(pic => {
                     let img = pic.querySelector('img');
                     pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
                     pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
 
-                    // لعب في الفلاتر
                     let sp = Math.random() * 0.15; 
                     let cn = 0.9 + Math.random() * 0.2; 
                     let br = 0.95 + Math.random() * 0.1; 
@@ -181,21 +177,31 @@
             });
         }
 
-        // Export PDF
+        // حفظ ملف الـ PDF
         const getPDF = () => {
-            // إخفاء الزراير وقت الطباعة
             const actionBar = document.querySelector('.actions-bar');
-            actionBar.style.display = 'none';
+            actionBar.style.display = 'none'; // إخفاء الأزرار لضمان جودة المسح
 
-            html2pdf().set({
+            const opt = {
                 margin: 0, 
                 filename: 'El_Mlokhia_V2.pdf',
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 1.5, useCORS: true, letterRendering: true }, // Scale 1.5 عشان ميطلعش شاشة بيضاء
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 1.5, // تجنب مشكلة المساحة البيضاء في الملفات الكبيرة
+                    useCORS: true, 
+                    letterRendering: true 
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: ['css', 'legacy'] }
-            }).from(document.getElementById('paperArea')).save().then(() => {
-                // إظهار الزراير تاني بعد ما يحمل
+                pagebreak: { 
+                    mode: ['css', 'legacy'], 
+                    avoid: ['.sheet', '.pic-wrap', 'img'] // منع قص الصور نهائياً
+                }
+            };
+
+            html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
+                actionBar.style.display = 'flex';
+            }).catch(err => {
+                console.error("PDF Error: ", err);
                 actionBar.style.display = 'flex';
             });
         }
