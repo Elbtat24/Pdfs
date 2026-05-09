@@ -53,33 +53,30 @@
         }
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* تصميم الورقة - مقاس A4 رسمي */
+        /* تصميم الورقة */
         .sheet { 
             width: 210mm; 
-            height: 296mm; 
-            /* التعديل هنا: صغرنا الفريم الداخلي للورقة لـ 5 مللي بدل 15 */
+            /* قللنا الطول ملي واحد لضمان عدم الترحيل */
+            height: 295mm; 
             padding: 5mm; 
             page-break-after: always; 
             page-break-inside: avoid !important;
-            break-inside: avoid !important;
             display: flex; flex-direction: column; 
-            /* التعديل هنا: قللنا المسافة بين الصور لـ 15 بيكسل */
-            gap: 15px; 
+            gap: 10px; 
             justify-content: space-evenly; align-items: center; 
-            box-sizing: border-box; margin-bottom: 25px;
+            box-sizing: border-box; 
+            margin-bottom: 25px;
             background: #fff; border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: all 0.4s ease;
+            position: relative;
             overflow: hidden; 
         }
-        .sheet:last-child { page-break-after: auto; }
 
         /* حاوية الصورة */
         .pic-wrap { 
-            /* التعديل هنا: صغرنا الفريم حوالين الصورة نفسها شوية */
             padding: 5px; 
             border-radius: 12px; background: #fff; 
-            /* التعديل هنا: كبرنا العرض عشان يملى الورقة أكتر والفريم يصغر */
             width: 96%; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
             flex: 1; 
@@ -89,10 +86,8 @@
             min-height: 0; 
             box-sizing: border-box;
             page-break-inside: avoid !important;
-            break-inside: avoid !important;
         }
 
-        /* الصورة نفسها */
         .pic-wrap img { 
             max-width: 100%; 
             max-height: 100%; 
@@ -100,12 +95,17 @@
             display: block; margin: auto; border-radius: 8px;
         }
 
+        /* تعديلات الطباعة لإلغاء أي هوامش خارجية */
         @media print {
             .actions-bar { display: none !important; }
-            body { background: #fff; }
+            body { background: #fff; margin: 0; padding: 0; }
             .sheet { 
-                margin: 0; border-radius: 0; box-shadow: none; border: none !important; 
-                height: 297mm;
+                margin: 0 !important; 
+                border-radius: 0; 
+                box-shadow: none; 
+                /* نلغي الفريم العشوائي وقت الطباعة الفعلية لو بيعمل مشاكل */
+                border: none !important; 
+                height: 297mm; /* نرجعها لمقاس الـ A4 الكامل في الطباعة */
             }
         }
     </style>
@@ -123,39 +123,26 @@
         const bStyles = ['solid', 'dashed', 'dotted', 'double'];
         const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
 
-        // تهيئة التطبيق
         document.addEventListener('DOMContentLoaded', () => {
             const area = document.getElementById('paperArea');
-            
             for (let i = 1; i <= 16; i++) {
                 let pg = document.createElement('div');
                 pg.className = 'sheet';
-                
-                // استثناء الورق اللي فيه صورتين بس
                 let picsNum = [5, 6, 11, 16].includes(i) ? 2 : 3;
-                
                 let imgsHtml = '';
                 for (let j = 1; j <= picsNum; j++) {
-                    imgsHtml += `
-                        <div class="pic-wrap">
-                            <img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'">
-                        </div>`;
+                    imgsHtml += `<div class="pic-wrap"><img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'"></div>`;
                 }
                 pg.innerHTML = imgsHtml;
                 area.appendChild(pg);
             }
-
             mixItUp();
-            console.log("App Initialized by Albtat 🚀");
         });
 
         const triggerMix = () => {
             const wrap = document.getElementById('paperArea');
             wrap.classList.add('ghost');
-            setTimeout(() => {
-                mixItUp();
-                wrap.classList.remove('ghost');
-            }, 350);
+            setTimeout(() => { mixItUp(); wrap.classList.remove('ghost'); }, 350);
         }
 
         const mixItUp = () => {
@@ -168,26 +155,18 @@
                 let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
                 let rndWidth = Math.floor(Math.random() * 4) + 2; 
                 s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
-                s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
-
+                
                 items.forEach(pic => {
                     let img = pic.querySelector('img');
                     pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
-
-                    let sp = Math.random() * 0.15; 
-                    let cn = 0.9 + Math.random() * 0.2; 
-                    let br = 0.95 + Math.random() * 0.1; 
-                    let hr = Math.floor(Math.random() * 15) - 7; 
-                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
+                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1}deg)`;
                 });
             });
         }
 
-        // حفظ ملف الـ PDF
         const getPDF = () => {
             const actionBar = document.querySelector('.actions-bar');
-            actionBar.style.display = 'none'; // إخفاء الأزرار لضمان جودة المسح
+            actionBar.style.display = 'none';
 
             const opt = {
                 margin: 0, 
@@ -196,19 +175,14 @@
                 html2canvas: { 
                     scale: 1.5, 
                     useCORS: true, 
-                    letterRendering: true 
+                    letterRendering: true,
+                    scrollY: 0 // مهم جداً لمنع ترحيل العناصر بسبب السكرول
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { 
-                    mode: ['css', 'legacy'], 
-                    avoid: ['.sheet', '.pic-wrap', 'img']
-                }
+                pagebreak: { mode: ['css', 'legacy'], avoid: ['.sheet', '.pic-wrap'] }
             };
 
             html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
-                actionBar.style.display = 'flex';
-            }).catch(err => {
-                console.error("PDF Error: ", err);
                 actionBar.style.display = 'flex';
             });
         }
