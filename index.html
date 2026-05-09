@@ -18,7 +18,8 @@
             font-family: 'Cairo', sans-serif; 
             text-align: center; 
             background: var(--bg); 
-            margin: 0; color: #2d3436;
+            margin: 0; 
+            color: #2d3436;
         }
 
         /* شريط الأدوات */
@@ -53,59 +54,60 @@
         }
         .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* تصميم الورقة - تم تصغير المقاسات لضمان عدم قص الفريم */
+        /* تصميم الورقة - مقاس A4 رسمي ودقيق */
         .sheet { 
-            width: 200mm; /* تم التصغير من 210 */
-            height: 285mm; /* تم التصغير من 296 */
-            padding: 4mm; /* تصغير البادينج الداخلي قليلاً */
-            page-break-after: always; 
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-            display: flex; flex-direction: column; 
-            gap: 15px; 
-            justify-content: space-evenly; align-items: center; 
-            box-sizing: border-box; margin-bottom: 25px;
-            background: #fff; border-radius: 15px;
+            width: 210mm; 
+            height: 297mm; /* تم التعديل لـ 297 بالضبط وهو مقاس A4 */
+            padding: 5mm; 
+            margin-bottom: 25px; /* للعرض على الشاشة فقط */
+            box-sizing: border-box; 
+            background: #fff; 
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.4s ease;
-            overflow: hidden; 
-            margin-left: auto; /* لضمان التوسيط */
-            margin-right: auto;
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            justify-content: space-evenly; 
+            align-items: center; 
+            overflow: hidden; /* لمنع خروج أي عنصر للورقة التالية */
+            page-break-after: always; /* إجبار التقطيع هنا */
         }
         .sheet:last-child { page-break-after: auto; }
 
         /* حاوية الصورة */
         .pic-wrap { 
             padding: 5px; 
-            border-radius: 12px; background: #fff; 
+            border-radius: 12px; 
+            background: #fff; 
             width: 96%; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-            flex: 1; 
+            flex: 1; /* جعل الصور تتوزع بالتساوي داخل الورقة */
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 0; 
             box-sizing: border-box;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            overflow: hidden;
         }
 
         /* الصورة نفسها */
         .pic-wrap img { 
             max-width: 100%; 
             max-height: 100%; 
-            object-fit: contain;
-            display: block; margin: auto; border-radius: 8px;
+            object-fit: contain; /* يحافظ على أبعاد الصورة بدون مط أو قص */
+            display: block; 
+            margin: auto; 
+            border-radius: 8px;
         }
 
-        @media print {
-            .actions-bar { display: none !important; }
-            body { background: #fff; }
-            .sheet { 
-                margin: 0 auto; border-radius: 0; box-shadow: none; border: none !important; 
-                width: 210mm;
-                height: 297mm;
-            }
+        /* --- كلاسات التصدير للـ PDF (يتم تفعيلها بالجافاسكريبت) --- */
+        .pdf-export-mode .actions-bar { display: none !important; }
+        .pdf-export-mode body { background: #fff !important; }
+        .pdf-export-mode .print-wrap { margin: 0 !important; }
+        .pdf-export-mode .sheet { 
+            margin: 0 !important; 
+            border-radius: 0 !important; 
+            box-shadow: none !important; 
+            border: none !important; /* إزالة الحواف وقت الطباعة لعدم زيادة الحجم */
         }
     </style>
 </head>
@@ -166,12 +168,11 @@
                 let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
                 let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
                 let rndWidth = Math.floor(Math.random() * 4) + 2; 
-                s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
-                s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
-
+                
+                // هنخلي البوردر يطبق على حاوية الصور مش الورقة نفسها عشان ميأثرش على مقاس A4 وقت الطباعة
                 items.forEach(pic => {
                     let img = pic.querySelector('img');
-                    pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
+                    pic.style.border = `${rndWidth}px ${rndStyle} ${pColors[Math.floor(Math.random() * pColors.length)]}`;
                     pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
 
                     let sp = Math.random() * 0.15; 
@@ -185,30 +186,35 @@
 
         // حفظ ملف الـ PDF
         const getPDF = () => {
-            const actionBar = document.querySelector('.actions-bar');
-            actionBar.style.display = 'none'; // إخفاء الأزرار لضمان جودة المسح
+            // 1. مهم جداً: نرفع السكرول لأول الصفحة عشان html2canvas ميقصش الجزء العلوي
+            window.scrollTo(0, 0);
+
+            // 2. تفعيل وضع التصدير لإلغاء المسافات (الـ Margins)
+            document.body.classList.add('pdf-export-mode');
+            
+            const element = document.getElementById('paperArea');
 
             const opt = {
-                margin: [5, 5, 5, 5], // التعديل هنا: إضافة هامش 5 ملليمتر من جميع الجهات لضمان عدم قص الفريم
+                margin: 0, 
                 filename: 'El_Mlokhia_V2.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 1 }, // جودة الصورة 100%
                 html2canvas: { 
-                    scale: 2, // تم رفع الدقة قليلاً لنتائج أفضل
+                    scale: 2, // دقة مضاعفة للحفاظ على وضوح الصور
                     useCORS: true, 
-                    letterRendering: true 
+                    scrollY: 0,
+                    windowWidth: document.documentElement.offsetWidth
                 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { 
-                    mode: ['css', 'legacy'], 
-                    avoid: ['.sheet', '.pic-wrap', 'img']
-                }
+                pagebreak: { mode: 'css' } // نعتمد فقط على كود CSS لتقطيع الصفحات
             };
 
-            html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
-                actionBar.style.display = 'flex';
+            // 3. توليد الـ PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                // 4. إرجاع الشكل للطبيعي بعد التحميل
+                document.body.classList.remove('pdf-export-mode');
             }).catch(err => {
                 console.error("PDF Error: ", err);
-                actionBar.style.display = 'flex';
+                document.body.classList.remove('pdf-export-mode');
             });
         }
     </script>
