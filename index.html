@@ -1,222 +1,217 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="author" content="Mohamed Albtat">
-    <title>اجابات الولية - المولد الذكي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        :root {
-            --main: #6c5ce7;
-            --sec: #00b894;
-            --bg: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Mohamed Albtat">
+    <title>اجابات الولية - المولد الذكي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --main: #6c5ce7;
+            --sec: #00b894;
+            --bg: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+        }
 
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            text-align: center; 
-            background: var(--bg); 
-            margin: 0; 
-            color: #2d3436;
-        }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            text-align: center; 
+            background: var(--bg); 
+            margin: 0; color: #2d3436;
+        }
 
-        /* شريط الأدوات */
-        .actions-bar { 
-            position: sticky; top: 0; z-index: 999;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            display: flex; justify-content: center; gap: 15px;
-        }
+        /* شريط الأدوات */
+        .actions-bar { 
+            position: sticky; top: 0; z-index: 999;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex; justify-content: center; gap: 15px;
+        }
 
-        button { 
-            font-family: inherit; padding: 12px 30px; font-size: 16px; 
-            cursor: pointer; border: none; border-radius: 50px; 
-            font-weight: bold; color: #fff;
-            transition: all 0.3s ease;
-        }
+        button { 
+            font-family: inherit; padding: 12px 30px; font-size: 16px; 
+            cursor: pointer; border: none; border-radius: 50px; 
+            font-weight: bold; color: #fff;
+            transition: all 0.3s ease;
+        }
 
-        .btn-gen { background: linear-gradient(135deg, var(--main), #a29bfe); }
-        .btn-gen:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4); }
+        .btn-gen { background: linear-gradient(135deg, var(--main), #a29bfe); }
+        .btn-gen:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4); }
 
-        .btn-dl { background: linear-gradient(135deg, var(--sec), #55efc4); }
-        .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4); }
+        .btn-dl { background: linear-gradient(135deg, var(--sec), #55efc4); }
+        .btn-dl:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0, 184, 148, 0.4); }
 
-        /* حاوية الأوراق */
-        .print-wrap { 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 30px auto; 
-            transition: opacity 0.35s ease;
-        }
-        .ghost { opacity: 0 !important; transform: scale(0.98); }
+        /* حاوية الأوراق */
+        .print-wrap { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 30px auto; 
+            transition: opacity 0.35s ease;
+        }
+        .ghost { opacity: 0 !important; transform: scale(0.98); }
 
-        /* تصميم الورقة - مقاس A4 رسمي ودقيق */
-        .sheet { 
-            width: 210mm; 
-            height: 297mm; /* تم التعديل لـ 297 بالضبط وهو مقاس A4 */
-            padding: 5mm; 
-            margin-bottom: 25px; /* للعرض على الشاشة فقط */
-            box-sizing: border-box; 
-            background: #fff; 
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            display: flex; 
-            flex-direction: column; 
-            gap: 15px; 
-            justify-content: space-evenly; 
-            align-items: center; 
-            overflow: hidden; /* لمنع خروج أي عنصر للورقة التالية */
-            page-break-after: always; /* إجبار التقطيع هنا */
-        }
-        .sheet:last-child { page-break-after: auto; }
+        /* تصميم الورقة - مقاس A4 رسمي */
+        .sheet { 
+            width: 210mm; 
+            height: 296mm; 
+            /* التعديل هنا: صغرنا الفريم الداخلي للورقة لـ 5 مللي بدل 15 */
+            padding: 5mm; 
+            page-break-after: always; 
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            display: flex; flex-direction: column; 
+            /* التعديل هنا: قللنا المسافة بين الصور لـ 15 بيكسل */
+            gap: 15px; 
+            justify-content: space-evenly; align-items: center; 
+            box-sizing: border-box; margin-bottom: 25px;
+            background: #fff; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            overflow: hidden; 
+        }
+        .sheet:last-child { page-break-after: auto; }
 
-        /* حاوية الصورة */
-        .pic-wrap { 
-            padding: 5px; 
-            border-radius: 12px; 
-            background: #fff; 
-            width: 96%; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-            flex: 1; /* جعل الصور تتوزع بالتساوي داخل الورقة */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
+        /* حاوية الصورة */
+        .pic-wrap { 
+            /* التعديل هنا: صغرنا الفريم حوالين الصورة نفسها شوية */
+            padding: 5px; 
+            border-radius: 12px; background: #fff; 
+            /* التعديل هنا: كبرنا العرض عشان يملى الورقة أكتر والفريم يصغر */
+            width: 96%; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            flex: 1; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 0; 
+            box-sizing: border-box;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+        }
 
-        /* الصورة نفسها */
-        .pic-wrap img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            object-fit: contain; /* يحافظ على أبعاد الصورة بدون مط أو قص */
-            display: block; 
-            margin: auto; 
-            border-radius: 8px;
-        }
+        /* الصورة نفسها */
+        .pic-wrap img { 
+            max-width: 100%; 
+            max-height: 100%; 
+            object-fit: contain;
+            display: block; margin: auto; border-radius: 8px;
+        }
 
-        /* --- كلاسات التصدير للـ PDF (يتم تفعيلها بالجافاسكريبت) --- */
-        .pdf-export-mode .actions-bar { display: none !important; }
-        .pdf-export-mode body { background: #fff !important; }
-        .pdf-export-mode .print-wrap { margin: 0 !important; }
-        .pdf-export-mode .sheet { 
-            margin: 0 !important; 
-            border-radius: 0 !important; 
-            box-shadow: none !important; 
-            border: none !important; /* إزالة الحواف وقت الطباعة لعدم زيادة الحجم */
-        }
-    </style>
+        @media print {
+            .actions-bar { display: none !important; }
+            body { background: #fff; }
+            .sheet { 
+                margin: 0; border-radius: 0; box-shadow: none; border: none !important; 
+                height: 297mm;
+            }
+        }
+    </style>
 </head>
 <body>
 
-    <div class="actions-bar">
-        <button class="btn-gen" onclick="triggerMix()">العب في النماذج 🎲</button>
-        <button class="btn-dl" onclick="getPDF()">حمل الـ PDF 📥</button>
-    </div>
+    <div class="actions-bar">
+        <button class="btn-gen" onclick="triggerMix()">العب في النماذج 🎲</button>
+        <button class="btn-dl" onclick="getPDF()">حمل الـ PDF 📥</button>
+    </div>
 
-    <div id="paperArea" class="print-wrap"></div>
+    <div id="paperArea" class="print-wrap"></div>
 
-    <script>
-        const bStyles = ['solid', 'dashed', 'dotted', 'double'];
-        const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
+    <script>
+        const bStyles = ['solid', 'dashed', 'dotted', 'double'];
+        const pColors = ['#2c3e50', '#c0392b', '#27ae60', '#d35400', '#8e44ad', '#16a085', '#2980b9'];
 
-        // تهيئة التطبيق
-        document.addEventListener('DOMContentLoaded', () => {
-            const area = document.getElementById('paperArea');
-            
-            for (let i = 1; i <= 16; i++) {
-                let pg = document.createElement('div');
-                pg.className = 'sheet';
-                
-                // استثناء الورق اللي فيه صورتين بس
-                let picsNum = [5, 6, 11, 16].includes(i) ? 2 : 3;
-                
-                let imgsHtml = '';
-                for (let j = 1; j <= picsNum; j++) {
-                    imgsHtml += `
-                        <div class="pic-wrap">
-                            <img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'">
-                        </div>`;
-                }
-                pg.innerHTML = imgsHtml;
-                area.appendChild(pg);
-            }
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', () => {
+            const area = document.getElementById('paperArea');
+            
+            for (let i = 1; i <= 16; i++) {
+                let pg = document.createElement('div');
+                pg.className = 'sheet';
+                
+                // استثناء الورق اللي فيه صورتين بس
+                let picsNum = [5, 6, 11, 16].includes(i) ? 2 : 3;
+                
+                let imgsHtml = '';
+                for (let j = 1; j <= picsNum; j++) {
+                    imgsHtml += `
+                        <div class="pic-wrap">
+                            <img src="img/p${i}_${j}.jpg" onerror="this.src='https://via.placeholder.com/600x200?text=Missing+p${i}_${j}'">
+                        </div>`;
+                }
+                pg.innerHTML = imgsHtml;
+                area.appendChild(pg);
+            }
 
-            mixItUp();
-            console.log("App Initialized by Albtat 🚀");
-        });
+            mixItUp();
+            console.log("App Initialized by Albtat 🚀");
+        });
 
-        const triggerMix = () => {
-            const wrap = document.getElementById('paperArea');
-            wrap.classList.add('ghost');
-            setTimeout(() => {
-                mixItUp();
-                wrap.classList.remove('ghost');
-            }, 350);
-        }
+        const triggerMix = () => {
+            const wrap = document.getElementById('paperArea');
+            wrap.classList.add('ghost');
+            setTimeout(() => {
+                mixItUp();
+                wrap.classList.remove('ghost');
+            }, 350);
+        }
 
-        const mixItUp = () => {
-            document.querySelectorAll('.sheet').forEach(s => {
-                let items = Array.from(s.querySelectorAll('.pic-wrap'));
-                items.sort(() => Math.random() - 0.5); 
-                items.forEach(el => s.appendChild(el)); 
+        const mixItUp = () => {
+            document.querySelectorAll('.sheet').forEach(s => {
+                let items = Array.from(s.querySelectorAll('.pic-wrap'));
+                items.sort(() => Math.random() - 0.5); 
+                items.forEach(el => s.appendChild(el)); 
 
-                let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
-                let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
-                let rndWidth = Math.floor(Math.random() * 4) + 2; 
-                
-                // هنخلي البوردر يطبق على حاوية الصور مش الورقة نفسها عشان ميأثرش على مقاس A4 وقت الطباعة
-                items.forEach(pic => {
-                    let img = pic.querySelector('img');
-                    pic.style.border = `${rndWidth}px ${rndStyle} ${pColors[Math.floor(Math.random() * pColors.length)]}`;
-                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
+                let rndStyle = bStyles[Math.floor(Math.random() * bStyles.length)];
+                let rndColor = pColors[Math.floor(Math.random() * pColors.length)];
+                let rndWidth = Math.floor(Math.random() * 4) + 2; 
+                s.style.border = `${rndWidth}px ${rndStyle} ${rndColor}`;
+                s.style.background = Math.random() > 0.5 ? '#fcfcfc' : '#ffffff';
 
-                    let sp = Math.random() * 0.15; 
-                    let cn = 0.9 + Math.random() * 0.2; 
-                    let br = 0.95 + Math.random() * 0.1; 
-                    let hr = Math.floor(Math.random() * 15) - 7; 
-                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
-                });
-            });
-        }
+                items.forEach(pic => {
+                    let img = pic.querySelector('img');
+                    pic.style.border = `3px solid ${pColors[Math.floor(Math.random() * pColors.length)]}`;
+                    pic.style.transform = `rotate(${(Math.random() - 0.5) * 1.5}deg)`;
 
-        // حفظ ملف الـ PDF
-        const getPDF = () => {
-            // 1. مهم جداً: نرفع السكرول لأول الصفحة عشان html2canvas ميقصش الجزء العلوي
-            window.scrollTo(0, 0);
+                    let sp = Math.random() * 0.15; 
+                    let cn = 0.9 + Math.random() * 0.2; 
+                    let br = 0.95 + Math.random() * 0.1; 
+                    let hr = Math.floor(Math.random() * 15) - 7; 
+                    img.style.filter = `sepia(${sp}) contrast(${cn}) brightness(${br}) hue-rotate(${hr}deg)`;
+                });
+            });
+        }
 
-            // 2. تفعيل وضع التصدير لإلغاء المسافات (الـ Margins)
-            document.body.classList.add('pdf-export-mode');
-            
-            const element = document.getElementById('paperArea');
+        // حفظ ملف الـ PDF
+        const getPDF = () => {
+            const actionBar = document.querySelector('.actions-bar');
+            actionBar.style.display = 'none'; // إخفاء الأزرار لضمان جودة المسح
 
-            const opt = {
-                margin: 0, 
-                filename: 'El_Mlokhia_V2.pdf',
-                image: { type: 'jpeg', quality: 1 }, // جودة الصورة 100%
-                html2canvas: { 
-                    scale: 2, // دقة مضاعفة للحفاظ على وضوح الصور
-                    useCORS: true, 
-                    scrollY: 0,
-                    windowWidth: document.documentElement.offsetWidth
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak: { mode: 'css' } // نعتمد فقط على كود CSS لتقطيع الصفحات
-            };
+            const opt = {
+                margin: 0, 
+                filename: 'El_Mlokhia_V2.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 1.5, 
+                    useCORS: true, 
+                    letterRendering: true 
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { 
+                    mode: ['css', 'legacy'], 
+                    avoid: ['.sheet', '.pic-wrap', 'img']
+                }
+            };
 
-            // 3. توليد الـ PDF
-            html2pdf().set(opt).from(element).save().then(() => {
-                // 4. إرجاع الشكل للطبيعي بعد التحميل
-                document.body.classList.remove('pdf-export-mode');
-            }).catch(err => {
-                console.error("PDF Error: ", err);
-                document.body.classList.remove('pdf-export-mode');
-            });
-        }
-    </script>
+            html2pdf().set(opt).from(document.getElementById('paperArea')).save().then(() => {
+                actionBar.style.display = 'flex';
+            }).catch(err => {
+                console.error("PDF Error: ", err);
+                actionBar.style.display = 'flex';
+            });
+        }
+    </script>
 </body>
 </html>
